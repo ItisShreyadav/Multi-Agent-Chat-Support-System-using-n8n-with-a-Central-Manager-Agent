@@ -21,8 +21,6 @@ Specialized agents are execution-only and limited to:
 
 Each agent runs as an isolated n8n workflow, invoked only by the Manager Agent.
 
-## Implementation Steps
-
 ## Final outcome 
 A scalable, debuggable, and deterministic multi-agent chat support system in n8n where:
 - The Manager Agent fully controls routing, state, and response flow
