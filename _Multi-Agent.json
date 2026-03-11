@@ -1,0 +1,516 @@
+{
+  "name": "WF5 - Multi-agent Architecture (OpenRouter Updated)",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -864,
+        480
+      ],
+      "id": "c240e3a5-d413-4cab-a1f6-9439fd811967",
+      "name": "When chat message received",
+      "webhookId": "7a20b4b1-976c-473c-b138-fc8c9315689a"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.content.intent }}",
+                    "rightValue": "track_order",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1a4952d1-e04a-4474-8eff-941763a96934"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4fb589ab-394a-4e88-a9f2-e8c63e4a4d77",
+                    "leftValue": "={{ $json.message.content.intent }}",
+                    "rightValue": "check_product",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "289f444c-ab68-486f-9451-e8afd3ac4904",
+                    "leftValue": "={{ $json.message.content.intent }}",
+                    "rightValue": "return_order",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7ebe6aae-d568-46fe-b6b4-b67d304f1d66",
+                    "leftValue": "={{ $json.message.content.intent }}",
+                    "rightValue": "payment_issue",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "94cdd183-55cc-49f7-9446-f0069a819e4e",
+                    "leftValue": "={{ $json.message.content.intent }}",
+                    "rightValue": "upload_doc",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -352,
+        432
+      ],
+      "id": "1e9fcf1e-9d4c-4dab-b4e2-815b8569bee7",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "options": {
+          "systemMessage": "=You are OrderTrackingAgent. The customer is asking about an order status.\n\nRespond clearly and helpfully with the order update.\n\nInput: Order ID is {{ $json.message.content.arguments.order_id }}",
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        48
+      ],
+      "id": "16fce03b-7260-4504-b792-f5aedb148a19",
+      "name": "OrderTrackingAgent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "options": {
+          "systemMessage": "=You are ProductInfoAgent. The customer wants information about a product or its availability.\n\nRespond clearly with whether the product is in stock and any key details.\n\nInput: Product name is {{ $json.message.content.arguments.product_name }} "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        192,
+        240
+      ],
+      "id": "cc15f6fd-88b9-4eb1-ad24-94ee78ea987d",
+      "name": "ProductInfoAgent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "options": {
+          "systemMessage": "=You are ReturnAgent. The customer wants to initiate a return for an order.\n\nConfirm the return has been initiated and mention the refund process.\n\nInput: Order ID is {{ $json.message.content.arguments.order_id }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        224,
+        560
+      ],
+      "id": "b2ae61c5-3501-49c9-8a38-a80c4fa8d008",
+      "name": "ReturnOrderAgent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "options": {
+          "systemMessage": "=You are PaymentAgent. The customer is facing a payment issue.\n\nAcknowledge the issue, and provide next steps or a helpful response.\n\nInput: Order ID is {{ $json.message.content.arguments.order_id }} "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        240,
+        880
+      ],
+      "id": "e42c2af4-a6fa-45c0-9bfd-befa2d036f7a",
+      "name": "PaymentAgent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=",
+        "options": {
+          "systemMessage": "=You are DocAgent. The customer wants to upload a document or file.\n\nAcknowledge the file upload and confirm successful processing.\n\nInput: File URL is {{ $json.message.content.arguments.file_url }} "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        1088
+      ],
+      "id": "3d003bdd-186b-4d0b-8ffe-9589be847349",
+      "name": "DocAgent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "deepseek/deepseek-r1:free",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -128,
+        240
+      ],
+      "id": "edfe9fa5-f0d3-41f4-86de-f758cec87f33",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "9l8giH832vxJtZAg",
+          "name": "OpenAi account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        224,
+        416
+      ],
+      "id": "0f403d5d-e125-43c0-a581-38e1ee8d550c",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "843e9NfiSCoL3omI",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        224,
+        736
+      ],
+      "id": "1cd16a0b-4b1b-4299-9967-a09a01d5630a",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "843e9NfiSCoL3omI",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        1312
+      ],
+      "id": "5b6ac64d-01a4-451c-ab6a-cc6ec1ca71bf",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "843e9NfiSCoL3omI",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        272,
+        1088
+      ],
+      "id": "03f73ae4-1bee-4f4d-aafd-efc160451369",
+      "name": "OpenRouter Chat Model3",
+      "credentials": {
+        "openRouterApi": {
+          "id": "843e9NfiSCoL3omI",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -688,
+        480
+      ],
+      "id": "56812de1-789e-4995-8388-5c717a8bb146",
+      "name": "Manager"
+    },
+    {
+      "parameters": {
+        "model": "google/gemma-3-12b-it:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        720
+      ],
+      "id": "b1bc21b2-46ed-4471-b02b-b27a935c766e",
+      "name": "Manager OpenRouter Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "843e9NfiSCoL3omI",
+          "name": "OpenRouter account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "OrderTrackingAgent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ProductInfoAgent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ReturnOrderAgent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PaymentAgent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DocAgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "OrderTrackingAgent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ProductInfoAgent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ReturnOrderAgent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "DocAgent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "PaymentAgent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manager OpenRouter Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Manager",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manager": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "5e78b1c4-6545-43eb-923b-fe318e3b4bc7",
+  "meta": {
+    "instanceId": "73538a110e503847bf2899b9089e78be88127aaf1b47c587a3a880c61aaa7f9d"
+  },
+  "id": "16WulNUCOsH0aFqx",
+  "tags": []
+}
